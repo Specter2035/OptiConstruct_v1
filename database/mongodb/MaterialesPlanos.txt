@@ -1,0 +1,56 @@
+[
+    {
+        "_id": "69dfe754b270c410ea766bb9",
+        "idMaterial": 1,
+        "nombrePlano": "Plano_Estructural_A1",
+        "mediciones": [
+            {
+                "tipo": "longitud",
+                "valor": 12.5,
+                "unidad": "m"
+            },
+            {
+                "tipo": "area",
+                "valor": 30.2,
+                "unidad": "m2"
+            }
+        ],
+        "capas": []
+    },
+    {
+        "_id": "69dfe754b270c410ea766bba",
+        "idMaterial": 2,
+        "nombrePlano": "Plano_Cimentacion_B2",
+        "mediciones": [
+            {
+                "tipo": "profundidad",
+                "valor": 3.2,
+                "unidad": "m"
+            },
+            {
+                "tipo": "volumen",
+                "valor": 15.8,
+                "unidad": "m3"
+            }
+        ],
+        "capas": []
+    },
+    {
+        "_id": "69dfe754b270c410ea766bbb",
+        "idMaterial": 3,
+        "nombrePlano": "Plano_Cubierta_C1",
+        "mediciones": [
+            {
+                "tipo": "area",
+                "valor": 45.7,
+                "unidad": "m2"
+            },
+            {
+                "tipo": "inclinacion",
+                "valor": 30,
+                "unidad": "grados"
+            }
+        ],
+        "capas": []
+    }
+]
