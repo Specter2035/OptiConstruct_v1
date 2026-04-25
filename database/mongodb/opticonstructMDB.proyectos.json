@@ -1,0 +1,42 @@
+[{
+  "_id": {
+    "$oid": "66b0a0010000000000000001"
+  },
+  "idCliente": 1,
+  "nombre_pr": "Infona",
+  "descripcion": "proyuecto financiado por ggp",
+  "direccionTerreno": "Gomez Palacio,DGO",
+  "fechaCreacion": {
+    "$date": "2022-03-10T00:00:00.000Z"
+  },
+  "ubicacion": {
+    "lat": 50.67,
+    "lng": -102.78
+  },
+  "plano": [
+    {
+      "_id": {
+        "$oid": "66b0a0010000000000000001"
+      },
+      "fecha": {
+        "$date": "2022-03-14T00:00:00.000Z"
+      },
+      "nombrePlano": "terrasa",
+      "cotizacion": {
+        "$numberDecimal": "25000"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "66b0a0010000000000000002"
+      },
+      "fecha": {
+        "$date": "2022-03-15T00:00:00.000Z"
+      },
+      "nombrePlano": "sala de star",
+      "cotizacion": {
+        "$numberDecimal": "35000"
+      }
+    }
+  ]
+}]
