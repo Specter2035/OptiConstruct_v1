@@ -1,0 +1,16 @@
+[
+    {
+        "IdMaterial": 1,
+        "nombreMaterial": "Ladrillo",
+        "descripcion": "Ladrillo Modular",
+        "unidadBase": " ",
+        "categoria": " "
+    },
+    {
+        "IdMaterial": 2,
+        "nombreMaterial": "Cemento Portland",
+        "descripcion": "Saco de cemento de alta resistencia",
+        "unidadBase": "bolsa",
+        "categoria": "Construccion"
+    }
+]
