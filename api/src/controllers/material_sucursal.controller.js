@@ -1,4 +1,4 @@
-const MaterialSucursal = require('../models/material_sucursal.models'); 
+const MaterialSucursal = require('../models/material_sucursal.model'); 
 
 class MaterialSucursalController {
 

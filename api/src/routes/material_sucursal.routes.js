@@ -4,7 +4,7 @@ const router = express.Router();
 const material_sucursalController = require('../controllers/material_sucursal.controller');
 
 //Validacion de token 
-const { verificarToken } = require('../middlewares/auth.middleware');
+const { verificarToken } = require('../middleware/auth.middleware');
 
 //El método post inserta un nuevo material
 router.post('/', verificarToken, material_sucursalController.crearMaterialSucursal);

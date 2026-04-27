@@ -7,6 +7,8 @@ const sucursalRoutes=require('./routes/sucursal.routes.js');
 const materialRoutes = require('./routes/material.routes')
 const materialesPlanosRoutes = require('./routes/materiales_planos.routes');
 const authRoutes = require('./routes/auth.routes');
+const materialSucursalRoutes = require('./routes/material_sucursal.routes');
+
 
 const app = express();
 
@@ -28,5 +30,7 @@ app.use('/api/materiales', materialRoutes)
 app.use('/api/materialesplanos', materialesPlanosRoutes);
 app.use('/api/materiales-planos', materialesPlanosRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/material-sucursal', materialSucursalRoutes);
+
 
 module.exports = app;
