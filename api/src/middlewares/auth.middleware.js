@@ -1,43 +1,44 @@
 const jwt = require('jsonwebtoken');
 
-function verificarToken(req, res, next){
-    try {
+function verificarToken(req,res,next) {
+    try{
         const authHeader = req.headers.authorization;
 
-        if(!authHeader){
+        if(!authHeader) {
             return res.status(401).json({
                 mensaje: 'Token no proporcionado'
             });
         }
 
-        if(!authHeader.startsWith('Bearer')){
+        if (!authHeader.startsWith('Bearer')){
             return res.status(401).json({
-                mensaje: 'Formato de token inválido'
+                mensaje: 'Formato de token invalido'
             });
         }
 
         const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token,process.env.JWT_SECRET);
         req.usuario = decoded;
-        next();        
-    } catch (error) {
+        next();
+    }catch(error){
         return res.status(401).json({
-            mensaje: 'Token inválido o expirado',
+            mensaje: 'Token invalido o expirado',
             error: error.message
         });
+
     }
 }
 
 function verificarRol(...rolesPermitidos){
-    return (req, res, next) => {
-        if(!req.usuario) {
+    return(req,res,next) => {
+        if (!req.usuario){
             return res.status(401).json({
                 mensaje: 'Usuario no autenticado'
             });
         }
 
-        if(!rolesPermitidos.includes(req.usuario.rol)) {
-            return res.status(403).json({
+        if(!rolesPermitidos.includes(req.usuario.Tipo)){
+             return res.status(401).json({
                 mensaje: 'No tienes permisos para acceder a este recurso'
             });
         }

@@ -26,6 +26,7 @@ class ProyectoModelo {
                     descripcion: 1,
                     direccionTerreno: 1,
                     fechaCreacion: 1,
+                    ubicacion:1,
                     plano: 1
                 }
             );

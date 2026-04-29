@@ -3,71 +3,75 @@ const bcrypt = require('bcryptjs');
 const Usuario = require('../models/usuarios.model');
 
 class AuthController {
-    static async login(req, res){
-        try {
-            const { correo, password} = req.body;
+    static async login(req,res) {
+        try{
+            const { Correo, Contrasenia} = req.body;
 
-            if(!correo || !password) {
+            if (!Correo || !Contrasenia){
                 return res.status(400).json({
-                    mensaje: 'correo y password son obligatorios'
+                    mensaje: 'Correo y contraseña son obligatorios'
                 });
             }
 
-            const usuario = await Usuario.obtenerPorCorreo(correo);
+            const usuario = await Usuario.obtenerPorCorreo(Correo);
 
-            if(!usuario){
+            if (!usuario){
+                    return res.status(500).json({
+                    mensaje: 'Credenciales invalidas'       
+                });
+            }
+        
+            /*
+            if (!usuario.activo){
                 return res.status(401).json({
-                    mensaje: 'Credenciales inválidas'
-                });
-            }
-
-            if (!usuario.activo) {
-                return res.status(403).json({
-                    mensaje: 'Usuario inactivo'
+                    mensaje : 'usuario inactivo'
                 })
-            }
+            }*/
 
-            const passwordValido = await bcrypt.compare(password, usuario.password_hash);
+            const contraseniaValida = await bcrypt.compare(Contrasenia,usuario.Contrasenia); //quite password_hash porque era columna de la miss
 
-            if (!passwordValido){
-                return res.status(401).json({
-                    mensaje: 'Credenciales inválidas'
+            if (!contraseniaValida){
+                    return res.status(401).json({
+                    mensaje: 'Credenciales invalidas'
                 });
             }
 
             const token = jwt.sign(
                 {
-                    id_usuario: usuario.id_usuario,
-                    nombre_usuario: usuario.nombre_usuario,
-                    correo: usuario.correo,
-                    rol: usuario.rol
+                    IdUsuario: usuario.IdUsuario,
+                    NombreUsuario: usuario.NombreUsuario,
+                    Correo: usuario.Correo,
+                    Tipo:usuario.Tipo
                 },
                 process.env.JWT_SECRET,
-                { expiresIn: process.env.JWT_EXPIRES_IN || '1h'}
+                { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
             );
+
             res.json({
                 mensaje: 'Login correcto',
                 token,
                 usuario: {
-                    id_usuario: usuario.id_usuario,
-                    nombre_usuario: usuario.nombre_usuario,
-                    correo: usuario.correo,
-                    rol: usuario.rol
+                    IdUsuario: usuario.IdUsuario,
+                    NombreUsuario: usuario.NombreUsuario,
+                    Correo: usuario.Correo,
+                    Tipo:usuario.Tipo
                 }
             });
 
-        } catch (error) {
+        }catch(error){
             res.status(500).json({
-                mensaje: 'Error en autenticación',
+                mensaje: 'Error de autenticacion',
                 error: error.message
             });
         }
     }
-    static async perfil(req,res){
-        res.json({
+
+    static async perfil(req,res) {
+        res.json ({
             mensaje: 'Acceso autorizado',
             usuario: req.usuario
         });
     }
 }
+
 module.exports = AuthController;

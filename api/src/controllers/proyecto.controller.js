@@ -1,28 +1,30 @@
 const Proyecto = require('../models/proyectoModelo.model.js');
-const Cliente = require('../models/cliente.model.js');
+const Cliente= require('../models/cliente.model'); //Antes de guardar en Mongo, valida en MySQL que sí exista
 const Sucursal = require('../models/sucursal.model.js');
 
-class ProyectoController {
-    static async registrarProyecto(req,res){
+class ProyectoController{
+    static async registrarProyecto(req,res)
+    {
         try{
-
-            const {
+            const{
                 idCliente,
                 nombre_pr,
                 descripcion,
                 fechaCreacion,
                 plano
+
             } = req.body;
 
-            const cliente = await Cliente.obtenerPorId(idCliente);
+        const cliente = await Cliente.obtenerPorId(idCliente);
 
-            if (!cliente){
-                return res.status(404).json({
-                    mensaje: "usuario no encontrado"
-                });
-            }
+        if(!cliente) {
+            return res.status(404).json({
+                mensaje: 'Cliente no encontrado'
+            });
 
-            const proyectoGuardado = await Proyecto.crearProyecto({
+        }
+
+           const proyectoGuardado = await Proyecto.crearProyecto({
                 idCliente: cliente.IdCliente,
                 nombre_pr,
                 descripcion,
@@ -31,17 +33,18 @@ class ProyectoController {
             });
 
             return res.status(201).json({
-                mensaje: 'proyecto registrado correctamente',
+                mensaje: 'Proyeto registrado correctamente',
                 data: proyectoGuardado
             });
 
         }catch(error){
-            return res.status(500).json({
-                mensaje: 'error al registrar proyecto',
+            res.status(500).json({
+                mensaje: 'Error al registrar el proyecto',
                 error: error.message
             });
         }
     }
+
     static async obtenerProyectosPorCliente(req,res){
         try{
 
@@ -58,6 +61,8 @@ class ProyectoController {
             });
         }
     }
+
+    /*
     static async obtenerProyectos(req,res){
         try{
 
@@ -71,20 +76,25 @@ class ProyectoController {
                 error: error.message
             });
         }
-    }
-    static async subirPlano(req, res){
-        try{
+    }*/
 
+    static async subirPlano(req, res) {
+        try {
             const { id } = req.params;
             const { fecha, nombrePlano, cotizacion } = req.body;
 
-            const proyectoActualizado = await Proyecto.agregarPlano(id, {
-                fecha,
-                nombrePlano,
-                cotizacion
-            });
+            const proyectoActualizado = await Proyecto.agregarPlano(
+                id,
+                {
+                            fecha,
+                            nombrePlano,
+                            cotizacion
 
-            if (!proyectoActualizado){
+                },
+                { new: true } // devuelve el actualizado
+            );
+
+            if (!proyectoActualizado) {
                 return res.status(404).json({
                     mensaje: "Proyecto no encontrado"
                 });
@@ -95,26 +105,30 @@ class ProyectoController {
                 data: proyectoActualizado
             });
 
-        }catch(error){
+        } catch (error) {
             return res.status(500).json({
                 mensaje: "Error al subir plano",
                 error: error.message
             });
         }
     }
-    static async actualizarUbicacion(req, res){
-        try{
 
+    static async actualizarUbicacion(req, res) {
+        try {
             const { id } = req.params;
             const { direccionTerreno, lat, lng } = req.body;
 
-            const proyectoActualizado = await Proyecto.actualizarUbicacion(id, {
-                direccionTerreno,
-                lat,
-                lng
-            });
+            const proyectoActualizado = await Proyecto.actualizarUbicacion(
+                id,
+                {
+                    direccionTerreno,
+                        lat,
+                        lng
+                },
+                { new: true } // devuelve el actualizado
+            );
 
-            if (!proyectoActualizado){
+            if (!proyectoActualizado) {
                 return res.status(404).json({
                     mensaje: "Proyecto no encontrado"
                 });
@@ -125,7 +139,7 @@ class ProyectoController {
                 data: proyectoActualizado
             });
 
-        }catch(error){
+        } catch (error) {
             return res.status(500).json({
                 mensaje: "Error al actualizar ubicación",
                 error: error.message
@@ -171,11 +185,12 @@ class ProyectoController {
             const sucursalesCercanas = sucursal
                 .map(s => ({
                     ...s,
-                    distancia: calcularDistancia(lat1, lng1, s.Lat, s.Lng)
+                   distancia: calcularDistancia(lat1, lng1, s.Lat, s.Lng)
                 }))
                 .filter(s => s.distancia <= 100)
                 .sort((a, b) => a.distancia - b.distancia);
-
+            
+            
             return res.json({
                 proyecto: proyecto.nombre_pr,
                 total: sucursalesCercanas.length,
@@ -192,5 +207,4 @@ class ProyectoController {
     }
 
 }
-
 module.exports = ProyectoController;

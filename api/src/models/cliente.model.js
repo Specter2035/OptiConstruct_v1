@@ -28,35 +28,31 @@ class Cliente {
     );
 
     return rows[0]; // solo un cliente
-    }
+}
 
-    //crear cliente
-    static async crear(data) {
-        const {
-            NombreUsuario,
-            IdUsuario_FK
-        } = data;
+//crear cliente
+static async crear(data) {
+    const {
+        NombreUsuario,
+        IdUsuario_FK
+    } = data;
 
-        
-    const [result] = await mysqlPool.query(
-        `INSERT INTO Cliente (
-            NombreUsuario,
-            IdUsuario_FK
-            )
-            VALUES (?, ?)`,
-            [NombreUsuario, IdUsuario_FK]
-        );
+    
+const [result] = await mysqlPool.query(
+    `INSERT INTO Cliente (
+        NombreUsuario,
+        IdUsuario_FK
+        )
+        VALUES (?, ?)`,
+        [NombreUsuario, IdUsuario_FK]
+    );
 
-        return {
-            IdCliente: result.insertId,
-            NombreUsuario,
-            IdUsuario_FK
-        };
-    }
+    return {
+        IdCliente: result.insertId,
+        NombreUsuario,
+        IdUsuario_FK
+    };
+}
 }
 
 module.exports = Cliente;
-
-
-/*
---- */

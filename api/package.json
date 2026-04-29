@@ -1,11 +1,11 @@
 {
-  "name": "opticonstructapi",
+  "name": "api-opticonstruct-nodejs",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/server.js",
+    "dev": "node ./node_modules/nodemon/bin/nodemon.js src/server.js",
     "start": "node src/server.js"
   },
   "keywords": [],

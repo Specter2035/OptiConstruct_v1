@@ -1,5 +1,7 @@
+const path = require('path');
+require('dotenv').config({path:path.resolve(__dirname,'../../.env')});
 const mysql = require('mysql2/promise');
-require('dotenv').config()
+//require('dotenv').config();
 
 const mysqlPool = mysql.createPool({
     host: process.env.MYSQL_HOST,
@@ -13,14 +15,14 @@ const mysqlPool = mysql.createPool({
 });
 
 async function connectMySQL() {
-    try{
+    try {
         const connection = await mysqlPool.getConnection();
-        console.log('Conexión exitosa a MySQL');
-        connection.release();        
-    } catch (error){
-        console.error('Error al conectar con MySQL', error.message);
+        console.log('Conexion exitosa a mysql');
+        connection.release();
+    } catch(error){
+        console.error ('Error al conectar con mYSQL: ', error.message);
         throw error;
     }
 }
 
-module.exports = {mysqlPool, connectMySQL};
+module.exports = {mysqlPool,connectMySQL};
