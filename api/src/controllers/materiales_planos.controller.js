@@ -1,6 +1,53 @@
+const fs = require('fs/promises');
+const path = require('path');
 const MaterialesPlanos = require('../models/materiales_planos.model');
 
 class MaterialesPlanosController {
+    static async subirArchivoDxf(req, res) {
+        const archivo = req.files?.archivo?.[0] || req.files?.file?.[0];
+
+        if (!archivo) {
+            return res.status(400).json({
+                mensaje: 'Archivo DXF no proporcionado'
+            });
+        }
+
+        try {
+            const nombrePlano = req.body.nombrePlano?.trim() || path.parse(archivo.originalname).name;
+            const rutaArchivo = path.relative(process.cwd(), archivo.path).replace(/\\/g, '/');
+
+            const nuevoDocumento = new MaterialesPlanos({
+                nombrePlano,
+                capas: [],
+                archivoOriginal: archivo.originalname,
+                archivoGuardado: archivo.filename,
+                rutaArchivo,
+                tamanoBytes: archivo.size,
+                estadoProcesamiento: 'pendiente'
+            });
+
+            const documentoGuardado = await nuevoDocumento.save();
+
+            return res.status(201).json({
+                mensaje: 'Archivo DXF recibido correctamente',
+                data: documentoGuardado,
+                archivo: {
+                    original: archivo.originalname,
+                    guardado: archivo.filename,
+                    ruta: rutaArchivo,
+                    tamanoBytes: archivo.size
+                }
+            });
+        } catch (error) {
+            await fs.unlink(archivo.path).catch(() => undefined);
+
+            return res.status(500).json({
+                mensaje: 'Error al registrar el archivo DXF',
+                error: error.message
+            });
+        }
+    }
+
     static async insertarMaterialPlano(req, res) {
         try {
             const { nombrePlano, capas = [] } = req.body;

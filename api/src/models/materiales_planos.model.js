@@ -31,7 +31,12 @@ const capaSchema = new mongoose.Schema({
 const materialesPlanosSchema = new mongoose.Schema({
     
     nombrePlano: { type: String,required: true},
-    capas: { type: [capaSchema], default: [] }
+    capas: { type: [capaSchema], default: [] },
+    archivoOriginal: { type: String, default: null },
+    archivoGuardado: { type: String, default: null },
+    rutaArchivo: { type: String, default: null },
+    tamanoBytes: { type: Number, default: null },
+    estadoProcesamiento: { type: String, default: 'pendiente' }
 }, {
     timestamps: true
 });
