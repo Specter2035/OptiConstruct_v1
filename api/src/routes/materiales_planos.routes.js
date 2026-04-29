@@ -91,6 +91,7 @@ function cargarDxf(req, res, next) {
 router.get('/', verificarToken, MaterialesPlanosController.obtenerMaterialesPlanos);
 router.post('/dxf', verificarToken, cargarDxf, MaterialesPlanosController.subirArchivoDxf);
 //router.get('/:id', MaterialesPlanosController.obtenerMaterialPlano);
+router.post('/:id/cotizacion', verificarToken, MaterialesPlanosController.crearCotizacion);
 router.get('/:id/capas', verificarToken, MaterialesPlanosController.obtenerCapasPlano);
 //router.post('/', MaterialesPlanosController.insertarMaterialPlano);
 //router.put('/:id/capas', MaterialesPlanosController.actualizarCapasPlano);

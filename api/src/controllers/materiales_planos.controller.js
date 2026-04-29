@@ -1,6 +1,50 @@
 const fs = require('fs/promises');
 const path = require('path');
 const MaterialesPlanos = require('../models/materiales_planos.model');
+const MaterialSucursal = require('../models/material_sucursal.model');
+
+function redondearMoneda(valor) {
+    return Number(Number(valor).toFixed(2));
+}
+
+function obtenerMaterialesRequeridos(capas = []) {
+    const materialesPorId = new Map();
+
+    capas.forEach((capa) => {
+        const materialesCapa = Array.isArray(capa.materiales) ? capa.materiales : [];
+
+        materialesCapa.forEach((material) => {
+            const idMaterial = Number(material.idMaterial);
+            const cantidad = Number(material.cantidad);
+
+            if (!Number.isFinite(idMaterial) || !Number.isFinite(cantidad)) {
+                return;
+            }
+
+            const materialAcumulado = materialesPorId.get(idMaterial) || {
+                idMaterial,
+                cantidad: 0,
+                unidad: material.unidad,
+                capas: new Set()
+            };
+
+            materialAcumulado.cantidad += cantidad;
+            materialAcumulado.unidad = materialAcumulado.unidad || material.unidad;
+
+            if (capa.nombreCapa) {
+                materialAcumulado.capas.add(capa.nombreCapa);
+            }
+
+            materialesPorId.set(idMaterial, materialAcumulado);
+        });
+    });
+
+    return Array.from(materialesPorId.values()).map((material) => ({
+        ...material,
+        cantidad: redondearMoneda(material.cantidad),
+        capas: Array.from(material.capas)
+    }));
+}
 
 class MaterialesPlanosController {
     static async subirArchivoDxf(req, res) {
@@ -72,6 +116,101 @@ class MaterialesPlanosController {
         } catch (error) {
             res.status(500).json({
                 mensaje: 'Error al registrar el plano',
+                error: error.message
+            });
+        }
+    }
+
+    static async crearCotizacion(req, res) {
+        try {
+            const { id } = req.params;
+            const { idSucursal } = req.body;
+            const idSucursalNumerico = Number(idSucursal);
+
+            if (!Number.isInteger(idSucursalNumerico) || idSucursalNumerico <= 0) {
+                return res.status(400).json({
+                    mensaje: 'idSucursal es obligatorio y debe ser numerico'
+                });
+            }
+
+            const plano = await MaterialesPlanos.findById(id);
+
+            if (!plano) {
+                return res.status(404).json({
+                    mensaje: 'Plano no encontrado'
+                });
+            }
+
+            const materialesRequeridos = obtenerMaterialesRequeridos(plano.capas);
+
+            if (materialesRequeridos.length === 0) {
+                return res.status(400).json({
+                    mensaje: 'El plano no tiene materiales parseados para cotizar'
+                });
+            }
+
+            const idsMateriales = materialesRequeridos.map((material) => material.idMaterial);
+            const preciosSucursal = await MaterialSucursal.obtenerPreciosPorSucursalYMateriales(idSucursalNumerico, idsMateriales);
+            const preciosPorMaterial = new Map(
+                preciosSucursal.map((material) => [Number(material.IdMaterial), material])
+            );
+
+            const materialesSinPrecio = materialesRequeridos.filter(
+                (material) => !preciosPorMaterial.has(material.idMaterial)
+            );
+
+            if (materialesSinPrecio.length > 0) {
+                return res.status(400).json({
+                    mensaje: 'La sucursal no tiene precio registrado para todos los materiales del plano',
+                    materialesFaltantes: materialesSinPrecio
+                });
+            }
+
+            const materialesCotizados = materialesRequeridos.map((material) => {
+                const precioSucursal = preciosPorMaterial.get(material.idMaterial);
+                const precioUnitario = redondearMoneda(precioSucursal.PrecioBase);
+                const subtotal = redondearMoneda(material.cantidad * precioUnitario);
+                const cantidadDisponible = Number(precioSucursal.CantidadDisponible);
+
+                return {
+                    idMaterial: material.idMaterial,
+                    nombreMaterial: precioSucursal.nombreMaterial,
+                    cantidad: material.cantidad,
+                    unidad: material.unidad || precioSucursal.unidadBase,
+                    precioUnitario,
+                    subtotal,
+                    cantidadDisponible,
+                    disponible: Number.isFinite(cantidadDisponible) ? cantidadDisponible >= material.cantidad : true,
+                    capas: material.capas
+                };
+            });
+
+            const total = redondearMoneda(
+                materialesCotizados.reduce((acumulado, material) => acumulado + material.subtotal, 0)
+            );
+
+            const cotizacion = {
+                idSucursal: idSucursalNumerico,
+                total,
+                estado: 'generada',
+                fecha: new Date(),
+                materiales: materialesCotizados
+            };
+
+            plano.cotizaciones.push(cotizacion);
+            await plano.save();
+
+            return res.status(201).json({
+                mensaje: 'Cotizacion generada correctamente',
+                data: {
+                    idPlano: plano._id,
+                    nombrePlano: plano.nombrePlano,
+                    cotizacion: plano.cotizaciones[plano.cotizaciones.length - 1]
+                }
+            });
+        } catch (error) {
+            return res.status(500).json({
+                mensaje: 'Error al generar cotizacion',
                 error: error.message
             });
         }
